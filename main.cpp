@@ -24,17 +24,20 @@ int main() {
     // DVa : Modification de double en float
     const int LARGEUR_TEXT      = 20;   // Ajouté
     const int LARGEUR_VALEUR    = 10;   // Ajouté
-    const int LARGEUR_NBRE      = 2;   // Ajouté
-    const int PRECISION         = 2;   // Ajouté
-    const float PRIX_BAGAGE            = 2.60f;
-    const float PRIX_PRISE_EN_CHARGE   = 5.00f;
+    const int LARGEUR_NBRE      = 2;    // Ajouté
+    const int PRECISION         = 2;    // Ajouté
+
+    const float PRIX_BAGAGE                 = 2.60f;
+    const float PRIX_PRISE_EN_CHARGE        = 5.00f;
     const float PRIX_TARIF_PAR_MINUTE_JOUR  = 1.00f;
     const float PRIX_TARIF_PAR_MINUTE_NUIT  = 1.60f;
 
-    const int MAX_BAGAGE    = 4;
-    const int MAX_DISTANCE  = 500;
-    const int MIN_VITESSE   = 30;
-    const int MAX_VITESSE   = 120;
+    const int MAX_BAGAGE        = 4;
+    const int MAX_DISTANCE      = 500;
+    const int MIN_VITESSE       = 30;
+    const int MAX_VITESSE       = 120;
+    const int FIN_NUIT_MIN      = 480;  // 8H00
+    const int DEBUT_NUIT_MIN    = 1200; // 20H00
 
     //Variable de saisie et de calcul
     int vit_moyenne;
@@ -42,11 +45,8 @@ int main() {
     int minute;
     char lecture;
 
-    double total_bagage;
-    double nb_bagage;
-    double dist_course;
-    double prix_trajet;
-    double total_trajet;
+    int nb_bagage;
+    int dist_course;
 
     // DVa : Ajout de la précision à l'affichage des chiffres
     cout << fixed << setprecision(PRECISION) <<endl;
@@ -123,18 +123,34 @@ int main() {
     }
 
     //---------------------------------------------------------------------------------
-    //Recapitulatif de la saisi effectuée par l'utilisateur
-    cout << "Votre commande " << endl
-         << "===============================================" << endl
-         << "Nbre de bagage(s) : "   <<    nb_bagage          << endl
-         << "Distance [km]     : "   <<    dist_course        << endl
-         << "Vitesse [km/h]    : "   <<    vit_moyenne        << endl;
-    cout << endl;
-
     //Calcul du prix de la course
-    total_bagage = PRIX_BAGAGE * nb_bagage;                                         // Conversion implicite en INT
-    prix_trajet = (dist_course / vit_moyenne) * 60 * PRIX_TARIF_PAR_MINUTE_JOUR;         // Base de temps (60minutes)
-    total_trajet = PRIX_PRISE_EN_CHARGE + total_bagage + prix_trajet;
+    int departEnMinute = heure * 60 + minute;
+    int dureeVoyage = (int)ceil(dist_course * 60.0 / vit_moyenne);
+    int dureeVoyageJour = 0;
+    int dureeVoyageNuit = 0;
+
+    if (departEnMinute < FIN_NUIT_MIN){
+        if (departEnMinute + dureeVoyage < FIN_NUIT_MIN ){
+            dureeVoyageNuit = dureeVoyage;
+        }else{
+            dureeVoyageNuit = FIN_NUIT_MIN - departEnMinute;
+            dureeVoyageJour = dureeVoyage - dureeVoyageNuit;
+        }
+    }else if (departEnMinute < DEBUT_NUIT_MIN) {
+        if (departEnMinute + dureeVoyage < DEBUT_NUIT_MIN){
+            dureeVoyageJour = DEBUT_NUIT_MIN - departEnMinute;
+            dureeVoyageNuit = dureeVoyage - dureeVoyageJour;
+        }else{
+            dureeVoyageJour = dureeVoyage;
+        }
+    }else{
+        dureeVoyageNuit = dureeVoyage;
+    }
+
+    float total_bagage = PRIX_BAGAGE * (float)nb_bagage;                                         // Conversion implicite en INT
+    float prix_trajet_jour = (float)dureeVoyageJour * PRIX_TARIF_PAR_MINUTE_JOUR;
+    float prix_trajet_nuit = (float)dureeVoyageNuit * PRIX_TARIF_PAR_MINUTE_NUIT;
+    float total_trajet = PRIX_PRISE_EN_CHARGE + total_bagage + prix_trajet_jour + prix_trajet_nuit;
 
     //Affichage du ticket
     //Total arrondi, toute minutes commencée est due.
@@ -143,7 +159,8 @@ int main() {
          << "===============================================" << endl
          << "Prise en charge   : "  << PRIX_PRISE_EN_CHARGE   << endl
          << "Supp bagages      : "  << total_bagage           << endl
-         << "Prix de la course : "  << prix_trajet            << endl
+         << "Prix de la course jour : "  << dureeVoyageJour << " min / " << prix_trajet_jour            << endl
+         << "Prix de la course nuit : "  << dureeVoyageNuit << " min / " << prix_trajet_nuit            << endl
          << "TOTAL             : "  << trunc(total_trajet)    << endl << endl;
 
     //---------------------------------------------------------------------------------
