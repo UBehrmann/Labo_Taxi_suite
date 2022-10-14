@@ -1,7 +1,7 @@
 // PRG1_E
 //---------------------------------------------------------------------------------
 // Fichier        : main.cpp
-// Auteur(s)      : BEE Gianni & PIEMONTESI Gwendal // Behrmann Urs & Vasques Dario Test
+// Auteur(s)      : BEE Gianni & PIEMONTESI Gwendal // Behrmann Urs & Vasques Dario Testrr
 // But            : Labo 1 update - Programme pour le prix d'une course de taxi
 // Modifications  :
 // Remarque(s)    : NILL
