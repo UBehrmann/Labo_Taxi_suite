@@ -22,15 +22,16 @@ int main() {
 
     //Constantes
     // DVa : Modification de double en float
-    const int LARGEUR_TEXT      = 20;   // Ajouté
-    const int LARGEUR_VALEUR    = 10;   // Ajouté
-    const int LARGEUR_NBRE      = 2;    // Ajouté
-    const int PRECISION         = 2;    // Ajouté
+    const int LARGEUR_TEXT             = 20;   // Ajouté
+    const int LARGEUR_VALEUR           = 13;   // Ajouté
+    const int LARGEUR_NBRE             = 2;    // Ajouté
+    const int PRECISION                = 2;    // Ajouté
 
     const float PRIX_BAGAGE                 = 2.60f;
     const float PRIX_PRISE_EN_CHARGE        = 5.00f;
     const float PRIX_TARIF_PAR_MINUTE_JOUR  = 1.00f;
     const float PRIX_TARIF_PAR_MINUTE_NUIT  = 1.60f;
+    const string HEURE_TARIF_JOUR           = "8h00 - 20h00";
 
     const int MAX_BAGAGE        = 4;
     const int MAX_DISTANCE      = 500;
@@ -67,7 +68,8 @@ int main() {
          << "- " << left << setw(LARGEUR_TEXT) << "tarif/minute (nuit)" << ":"
          << right << setw(LARGEUR_VALEUR) << PRIX_TARIF_PAR_MINUTE_NUIT << endl
          << "- " << left << setw(LARGEUR_TEXT) << "tarif jour" << ":"
-         << right << setw(18) << "8h00" << " - " << "20h00" << endl;
+         << right << setw(LARGEUR_VALEUR) << HEURE_TARIF_JOUR << endl
+         << endl; // Rajout d'un saut à la ligne pour marquer la séparation entre les 2 paragraphes
 
     //---------------------------------------------------------------------------------
     //Variable de saisi par l'utilisateur
@@ -100,7 +102,7 @@ int main() {
 
     cout    << "- "
             << left << setw(LARGEUR_TEXT) << "vitesse [km/h]"
-            << right << setw(LARGEUR_VALEUR) << "[30 -120] " << ':'; // Changement text pour correspondre à la donnée
+            << right << setw(LARGEUR_VALEUR) << "[30 - 120] " << ':'; // Changement text pour correspondre à la donnée
     cin  >> vit_moyenne;
     VIDE_BUFFER;
 
@@ -112,7 +114,7 @@ int main() {
 
     cout    << "- "
             << left << setw(LARGEUR_TEXT) << "depart"
-            << right << setw(LARGEUR_VALEUR) << "[hh:mm] " << ':'; // Changement text pour correspondre à la donnée
+            << right << setw(LARGEUR_VALEUR) << "[hh:mm] " << ':' << endl; // Changement text pour correspondre à la donnée
     cin  >> heure >> lecture >> minute;
     VIDE_BUFFER;
 
@@ -154,14 +156,25 @@ int main() {
 
     //Affichage du ticket
     //Total arrondi, toute minutes commencée est due.
+    //Ajout de la largeur du texte setw() et restructuration de l'affichage du output pour correspondre à la donnée
     cout  << fixed << setprecision(2);
     cout << "Votre ticket" << endl
          << "===============================================" << endl
-         << "Prise en charge   : "  << PRIX_PRISE_EN_CHARGE   << endl
-         << "Supp bagages      : "  << total_bagage           << endl
-         << "Prix de la course jour : "  << dureeVoyageJour << " min / " << prix_trajet_jour            << endl
-         << "Prix de la course nuit : "  << dureeVoyageNuit << " min / " << prix_trajet_nuit            << endl
-         << "TOTAL             : "  << trunc(total_trajet)    << endl << endl;
+         << "- " << left << setw(LARGEUR_TEXT) << "Prise en charge" << ':' // Ajout
+         << right << setw(LARGEUR_VALEUR) << PRIX_PRISE_EN_CHARGE << endl
+         << "- " << left << setw(LARGEUR_TEXT) << "Supp bagages" << ':' // Ajout
+         << right << setw(LARGEUR_VALEUR) << total_bagage << endl
+         << "- " << left << setw(LARGEUR_TEXT) << "temps course" << endl // Ajout
+         << right << setw(LARGEUR_VALEUR) << dureeVoyageJour << "'" << " @ " << PRIX_TARIF_PAR_MINUTE_JOUR << " :"
+         << right << setw(LARGEUR_VALEUR) << prix_trajet_jour << endl
+         << right << setw(LARGEUR_VALEUR) << dureeVoyageNuit << "'" << " @ " << PRIX_TARIF_PAR_MINUTE_NUIT << " :"
+         << right << setw(LARGEUR_VALEUR) << prix_trajet_nuit << endl
+         << "---------------------" << "    " << "--------------------" << endl
+         << right << setw(LARGEUR_TEXT) << "TOTAL" << "  :"
+         << right << setw(LARGEUR_VALEUR) << trunc(total_trajet) << endl << endl;
+         //<< "Prix de la course jour : "  << dureeVoyageJour << " min / " << prix_trajet_jour            << endl
+         //<< "Prix de la course nuit : "  << dureeVoyageNuit << " min / " << prix_trajet_nuit            << endl
+         //<< "TOTAL             : "  << trunc(total_trajet)    << endl << endl;
 
     //---------------------------------------------------------------------------------
     //Fin de programme
