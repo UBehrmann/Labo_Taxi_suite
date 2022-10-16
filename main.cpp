@@ -48,6 +48,7 @@ int main() {
     int nb_bagage;
     int dist_course;
 
+
     // DVa : Ajout de la précision à l'affichage des chiffres
     cout << fixed << setprecision(PRECISION) <<endl;
 
@@ -55,20 +56,21 @@ int main() {
     //Message de bienvenue et présentation condition des conditions du voyageur
     // DVa : Ajout de la largeur du texte setw() et restructuration de l'affichage du output
     cout << "Bonjour," << endl
-         << "Ce programme calcule le prix d'une course de taxi." << endl << endl
-         << "Ci-dessous, les conditions pour votre voyage : " << endl
-         << "=====================TARIF=====================" << endl
+         << "Ce programme calcule le prix d'une course de taxi." << endl <<   endl
+         << "Ci-dessous, les conditions pour votre voyage : " <<              endl
+         << "=====================TARIF=====================" <<              endl
          << "- " << left << setw(LARGEUR_TEXT) << "Prise en charge" << ':'
-         << right << setw(LARGEUR_VALEUR) << PRIX_PRISE_EN_CHARGE << endl
+         << right << setw(LARGEUR_VALEUR) << PRIX_PRISE_EN_CHARGE <<       endl
          << "- " << left << setw(LARGEUR_TEXT) << "Supp par bagage" << ":"
-         << right << setw(LARGEUR_VALEUR) << PRIX_BAGAGE << endl
+         << right << setw(LARGEUR_VALEUR) << PRIX_BAGAGE <<                endl
          << "- " << left << setw(LARGEUR_TEXT) << "tarif/minute (jour)" << ":"
          << right << setw(LARGEUR_VALEUR) << PRIX_TARIF_PAR_MINUTE_JOUR << endl
          << "- " << left << setw(LARGEUR_TEXT) << "tarif/minute (nuit)" << ":"
          << right << setw(LARGEUR_VALEUR) << PRIX_TARIF_PAR_MINUTE_NUIT << endl
          << "- " << left << setw(LARGEUR_TEXT) << "tarif jour" << ":"
-         << right << setw(LARGEUR_VALEUR) << HEURE_TARIF_JOUR << endl
+         << right << setw(LARGEUR_VALEUR) << HEURE_TARIF_JOUR <<           endl
          << endl; // Rajout d'un saut à la ligne pour marquer la séparation entre les 2 paragraphes
+
 
     //---------------------------------------------------------------------------------
     //Variable de saisi par l'utilisateur
@@ -87,6 +89,7 @@ int main() {
         return EXIT_FAILURE;
     }
 
+
     // Distance
     cout    << "- "
             << left << setw(LARGEUR_TEXT) << "distance [km]"
@@ -99,6 +102,7 @@ int main() {
         VIDE_BUFFER;
         return EXIT_FAILURE;
     }
+
 
     // Vitesse
     cout    << "- "
@@ -113,12 +117,13 @@ int main() {
         return EXIT_FAILURE;
     }
 
+
     // Heure depart
     cout    << "- "
             << left << setw(LARGEUR_TEXT) << "depart "
             << right << setw(LARGEUR_VALEUR) << "[hh:mm] " << ':'; // Changement text pour correspondre à la donnée
     cin >> heure;
-    cin.ignore();
+    cin.ignore(); // Ignore l'entree du ":" par l'utilisateur
     cin >> minute;
 
     VIDE_BUFFER;
@@ -129,8 +134,9 @@ int main() {
         return EXIT_FAILURE;
     }
 
+
     //---------------------------------------------------------------------------------
-    //Calcul du prix de la course
+    //Calcule du prix de la course
     int departEnMinute = heure * 60 + minute;
     int dureeVoyage = (int)ceil(dist_course * 60.0 / vit_moyenne);
 
@@ -138,7 +144,7 @@ int main() {
     int dureeVoyageNuit    = 0;     // Total du voyage de nuit
     int dureeVoyageCalcule = 0;     // Valeur temporaire pour le calcule des temps de voyages dans les zones "nuit" et "jour"
 
-    // Tant que pas toutes les minutes sont comptabilisées, on reste dans la boucle.
+    // Tant que toutes les minutes ne sont pas comptabilisées, on reste dans la boucle.
     while( dureeVoyage > 0){
         // Test si le départ est durant les heures de nuit 0 h 00 - 7 h 59
         if (departEnMinute < FIN_NUIT_MIN) {
@@ -146,9 +152,9 @@ int main() {
             // Test si la durée du voyage sera continuée durant les heures de jour qui commence à FIN_NUIT_MIN
             departEnMinute + dureeVoyage < FIN_NUIT_MIN ? dureeVoyageCalcule = dureeVoyage : dureeVoyageCalcule = FIN_NUIT_MIN - departEnMinute;
 
-            dureeVoyageNuit += dureeVoyageCalcule;
-            dureeVoyage -= dureeVoyageCalcule;
-            departEnMinute = FIN_NUIT_MIN;
+            dureeVoyageNuit  += dureeVoyageCalcule;
+            dureeVoyage      -= dureeVoyageCalcule;
+            departEnMinute    = FIN_NUIT_MIN;
         }
         // Test si le départ est durant les heures de jour 8 h 00 - 19 h 59
         if (departEnMinute < DEBUT_NUIT_MIN){
@@ -165,10 +171,11 @@ int main() {
             departEnMinute + dureeVoyage < MINUIT ? dureeVoyageCalcule = dureeVoyage : dureeVoyageCalcule = MINUIT - departEnMinute;
 
             dureeVoyageNuit += dureeVoyageCalcule;
-            dureeVoyage -= dureeVoyageCalcule;
-            departEnMinute = 0;
+            dureeVoyage     -= dureeVoyageCalcule;
+            departEnMinute   = 0;
         }
     }
+
 
     // Calcule prix total d'après le temps de trajet trouvé
     float total_bagage     = PRIX_BAGAGE * (float)nb_bagage;
@@ -176,28 +183,30 @@ int main() {
     float prix_trajet_nuit = (float)dureeVoyageNuit * PRIX_TARIF_PAR_MINUTE_NUIT;
     float total_trajet     = PRIX_PRISE_EN_CHARGE + total_bagage + prix_trajet_jour + prix_trajet_nuit;
 
+
     //Affichage du ticket
     //Total arrondi, toutes minutes commencée est due.
     //Ajout de la largeur du texte setw() et restructuration de l'affichage du output pour correspondre à la donnée
     cout  << fixed << setprecision(2);
-    cout << endl << "Votre ticket" << endl
-         << "===============================================" << endl
+    cout << endl << "Votre ticket" <<                                   endl
+         << "===============================================" <<        endl
          << "- "  << left << setw(LARGEUR_TEXT) << "Prise en charge" << ':' // Ajout
          << right << setw(LARGEUR_VALEUR) << PRIX_PRISE_EN_CHARGE << endl
          << "- "  << left << setw(LARGEUR_TEXT) << "Supp bagages" << ':' // Ajout
-         << right << setw(LARGEUR_VALEUR) << total_bagage << endl
+         << right << setw(LARGEUR_VALEUR) << total_bagage <<         endl
          << "- "  << left << setw(LARGEUR_TEXT) << "temps course" << endl // Ajout
          << right << setw(LARGEUR_VALEUR) << dureeVoyageJour << "'" << " @ " << PRIX_TARIF_PAR_MINUTE_JOUR << " :"
-         << right << setw(LARGEUR_VALEUR) << prix_trajet_jour << endl
+         << right << setw(LARGEUR_VALEUR) << prix_trajet_jour <<     endl
          << right << setw(LARGEUR_VALEUR) << dureeVoyageNuit << "'" << " @ " << PRIX_TARIF_PAR_MINUTE_NUIT << " :"
-         << right << setw(LARGEUR_VALEUR) << prix_trajet_nuit << endl
+         << right << setw(LARGEUR_VALEUR) << prix_trajet_nuit <<     endl
          << left  << setw(LARGEUR_TEXT) << "---------------------" << "    " << "--------------------" << endl
          << right << setw(LARGEUR_TEXT) << "TOTAL" << "  :"
-         << right << setw(LARGEUR_VALEUR) << trunc(total_trajet) << endl << endl;
+         << right << setw(LARGEUR_VALEUR) << total_trajet << endl << endl;
+
 
     //---------------------------------------------------------------------------------
     //Fin de programme
     cout << "Pressez ENTER pour quitter";
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');                    // Vider le buffer
+    VIDE_BUFFER;                  // Vider le buffer
     return EXIT_SUCCESS;
 }
