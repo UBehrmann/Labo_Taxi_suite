@@ -24,7 +24,6 @@ int main() {
     // DVa : Modification de double en float
     const int LARGEUR_TEXT             = 20;   // Ajouté
     const int LARGEUR_VALEUR           = 13;   // Ajouté
-    const int LARGEUR_NBRE             = 2;    // Ajouté
     const int PRECISION                = 2;    // Ajouté
 
     const float PRIX_BAGAGE                 = 2.60f;
@@ -39,12 +38,12 @@ int main() {
     const int MAX_VITESSE       = 120;
     const int FIN_NUIT_MIN      = 480;  // 8H00
     const int DEBUT_NUIT_MIN    = 1200; // 20H00
+    const int MINUIT            = 1440; // 24H00
 
     //Variable de saisie et de calcul
     int vit_moyenne;
     int heure;
     int minute;
-    char lecture;
 
     int nb_bagage;
     int dist_course;
@@ -88,6 +87,7 @@ int main() {
         return EXIT_FAILURE;
     }
 
+    // Distance
     cout    << "- "
             << left << setw(LARGEUR_TEXT) << "distance [km]"
             << right << setw(LARGEUR_VALEUR) << "[0 - 500] " << ':'; // Changement text pour correspondre à la donnée
@@ -100,6 +100,7 @@ int main() {
         return EXIT_FAILURE;
     }
 
+    // Vitesse
     cout    << "- "
             << left << setw(LARGEUR_TEXT) << "vitesse [km/h]"
             << right << setw(LARGEUR_VALEUR) << "[30 - 120] " << ':'; // Changement text pour correspondre à la donnée
@@ -112,10 +113,14 @@ int main() {
         return EXIT_FAILURE;
     }
 
+    // Heure depart
     cout    << "- "
-            << left << setw(LARGEUR_TEXT) << "depart"
-            << right << setw(LARGEUR_VALEUR) << "[hh:mm] " << ':' << endl; // Changement text pour correspondre à la donnée
-    cin  >> heure >> lecture >> minute;
+            << left << setw(LARGEUR_TEXT) << "depart "
+            << right << setw(LARGEUR_VALEUR) << "[hh:mm] " << ':'; // Changement text pour correspondre à la donnée
+    cin >> heure;
+    cin.ignore();
+    cin >> minute;
+
     VIDE_BUFFER;
 
     if ( heure >= 24 || heure < 0 || minute > 59 || minute < 0 ) {
@@ -128,37 +133,54 @@ int main() {
     //Calcul du prix de la course
     int departEnMinute = heure * 60 + minute;
     int dureeVoyage = (int)ceil(dist_course * 60.0 / vit_moyenne);
-    int dureeVoyageJour = 0;
-    int dureeVoyageNuit = 0;
 
-    if (departEnMinute < FIN_NUIT_MIN){
-        if (departEnMinute + dureeVoyage < FIN_NUIT_MIN ){
-            dureeVoyageNuit = dureeVoyage;
-        }else{
-            dureeVoyageNuit = FIN_NUIT_MIN - departEnMinute;
-            dureeVoyageJour = dureeVoyage - dureeVoyageNuit;
+    int dureeVoyageJour = 0;        // Total du voyage de jour
+    int dureeVoyageNuit = 0;        // Total du voyage de nuit
+    int dureeVoyageCalcule = 0;     // Valeur temporaire pour le calcule des temps de voyages dans les zones "nuit" et "jour"
+
+    // Tant que pas toutes les minutes sont comptabilisées, on reste dans la boucle.
+    while( dureeVoyage > 0){
+        // Test si le départ est durant les heures de nuit 0 h 00 - 7 h 59
+        if (departEnMinute < FIN_NUIT_MIN) {
+
+            // Test si la durée du voyage sera continuée durant les heures de jour qui commence à FIN_NUIT_MIN
+            departEnMinute + dureeVoyage < FIN_NUIT_MIN ? dureeVoyageCalcule = dureeVoyage : dureeVoyageCalcule = FIN_NUIT_MIN - departEnMinute;
+
+            dureeVoyageNuit += dureeVoyageCalcule;
+            dureeVoyage -= dureeVoyageCalcule;
+            departEnMinute = FIN_NUIT_MIN;
         }
-    }else if (departEnMinute < DEBUT_NUIT_MIN) {
-        if (departEnMinute + dureeVoyage < DEBUT_NUIT_MIN){
-            dureeVoyageJour = DEBUT_NUIT_MIN - departEnMinute;
-            dureeVoyageNuit = dureeVoyage - dureeVoyageJour;
-        }else{
-            dureeVoyageJour = dureeVoyage;
+        // Test si le départ est durant les heures de jour 8 h 00 - 19 h 59
+        if (departEnMinute < DEBUT_NUIT_MIN){
+
+            departEnMinute + dureeVoyage < DEBUT_NUIT_MIN ? dureeVoyageCalcule = dureeVoyage : dureeVoyageCalcule = DEBUT_NUIT_MIN - departEnMinute ;
+
+            dureeVoyageJour += dureeVoyageCalcule;
+            dureeVoyage -= dureeVoyageCalcule;
+            departEnMinute = DEBUT_NUIT_MIN;
         }
-    }else{
-        dureeVoyageNuit = dureeVoyage;
+        // Test si le départ est durant les heures de jour 20 h 00 - 23 h 59
+        if (departEnMinute >= DEBUT_NUIT_MIN){
+
+            departEnMinute + dureeVoyage < MINUIT ? dureeVoyageCalcule = dureeVoyage : dureeVoyageCalcule = MINUIT - departEnMinute;
+
+            dureeVoyageNuit += dureeVoyageCalcule;
+            dureeVoyage -= dureeVoyageCalcule;
+            departEnMinute = 0;
+        }
     }
 
-    float total_bagage = PRIX_BAGAGE * (float)nb_bagage;                                         // Conversion implicite en INT
+    // Calcule prix total d'après le temps de trajet trouvé
+    float total_bagage = PRIX_BAGAGE * (float)nb_bagage;
     float prix_trajet_jour = (float)dureeVoyageJour * PRIX_TARIF_PAR_MINUTE_JOUR;
     float prix_trajet_nuit = (float)dureeVoyageNuit * PRIX_TARIF_PAR_MINUTE_NUIT;
     float total_trajet = PRIX_PRISE_EN_CHARGE + total_bagage + prix_trajet_jour + prix_trajet_nuit;
 
     //Affichage du ticket
-    //Total arrondi, toute minutes commencée est due.
+    //Total arrondi, toutes minutes commencée est due.
     //Ajout de la largeur du texte setw() et restructuration de l'affichage du output pour correspondre à la donnée
     cout  << fixed << setprecision(2);
-    cout << "Votre ticket" << endl
+    cout << endl << "Votre ticket" << endl
          << "===============================================" << endl
          << "- " << left << setw(LARGEUR_TEXT) << "Prise en charge" << ':' // Ajout
          << right << setw(LARGEUR_VALEUR) << PRIX_PRISE_EN_CHARGE << endl
