@@ -191,7 +191,7 @@ int main() {
          << right << setw(LARGEUR_VALEUR) << prix_trajet_jour << endl
          << right << setw(LARGEUR_VALEUR) << dureeVoyageNuit << "'" << " @ " << PRIX_TARIF_PAR_MINUTE_NUIT << " :"
          << right << setw(LARGEUR_VALEUR) << prix_trajet_nuit << endl
-         << "---------------------" << "    " << "--------------------" << endl
+         << left << setw(LARGEUR_TEXT) << "---------------------" << "    " << "--------------------" << endl
          << right << setw(LARGEUR_TEXT) << "TOTAL" << "  :"
          << right << setw(LARGEUR_VALEUR) << trunc(total_trajet) << endl << endl;
          //<< "Prix de la course jour : "  << dureeVoyageJour << " min / " << prix_trajet_jour            << endl
